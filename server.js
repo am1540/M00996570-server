@@ -1,9 +1,19 @@
 var express = require("express");
 var cors = require("cors");
+var path = require("path");
 
 var app = express();
 
 app.use(cors());
+app.use(express.json());
+
+app.use(function(request, response, next) {
+    console.log("Incoming " + request.method + " request to " + request.url);
+    next();
+});
+
+var publicPath = path.resolve(__dirname, "staticFiles");
+app.use("/images", express.static(publicPath));
 
 let lessonsArray = [
     {
@@ -14,7 +24,7 @@ let lessonsArray = [
         price: 25,
         availability: 5,
         image: "computerScience.jpg",
-        alt: "A picture representing Computer Science"
+        alt: "Computer Science"
     },
     {
         id: 1002,
@@ -24,7 +34,7 @@ let lessonsArray = [
         price: 20,
         availability: 5,
         image: "maths.jpg",
-        alt: "A picture representing Mathematics"
+        alt: "Mathematics"
     },
     {
         id: 1003,
@@ -34,13 +44,22 @@ let lessonsArray = [
         price: 18,
         availability: 5,
         image: "englishLiterature.jpg",
-        alt: "A picture representing English Literature"
+        alt: "English Literature"
     }
 ];
 
-app.use(function(request, response) {
-    console.log("In comes a request to: " + request.url);
+app.get("/lessons", function(request, response) {
     response.json(lessonsArray);
+});
+
+app.post("/orders", function(request, response) {
+    var body = request.body;
+    console.log("Order received from: " + body.name);
+    response.json({ message: "Order received!" });
+});
+
+app.use(function(request, response) {
+    response.status(404).send("Page not found!");
 });
 
 app.listen(3000, function() {
